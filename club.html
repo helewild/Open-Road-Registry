@@ -1,1 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Open Road Registry  Club</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
+    img { max-width: 320px; border-radius: 12px; border: 1px solid #ddd; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+    .muted { opacity: 0.7; }
+    .badge { display: inline-block; padding: 4px 10px; border: 1px solid #999; border-radius: 999px; font-size: 12px; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <p><a href="index.html">Back to search</a></p>
+  <h1 id="name">Club</h1>
+  <div id="wrap"></div>
 
+  <script>
+    const API_BASE = "PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
+    const wrap = document.getElementById("wrap");
+    const nameEl = document.getElementById("name");
+    const params = new URLSearchParams(location.search);
+    const clubId = params.get("club_id") || "";
+
+    function esc(s){ return String(s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    async function load(){
+      if(!clubId){ wrap.innerHTML = "<div class='card'>Missing club id</div>"; return; }
+      wrap.innerHTML = "<div class='card'>Loading</div>";
+      const url = API_BASE + "?action=club&club_id=" + encodeURIComponent(clubId);
+      const r = await fetch(url);
+      const j = await r.json();
+      if(!j.ok){ wrap.innerHTML = "<div class='card'>"+esc(j.error||"error")+"</div>"; return; }
+
+      const c = j.club;
+      nameEl.textContent = c.name || "Club";
+      const badge = "<span class='badge'>" + esc(c.status) + "</span>";
+
+      const contacts = (c.public_contacts || []).map(x => {
+        const label = x.role_label ? "  " + esc(x.role_label) : "";
+        return "<li><strong>"+esc(x.avatar_name)+"</strong>  "+esc(x.role)+label+"</li>";
+      }).join("");
+
+      wrap.innerHTML = `
+        <div class="card">
+          <div class="row">
+            <div>
+              ${c.patch_url ? `<img src="${esc(c.patch_url)}" alt="patch" />` : ""}
+            </div>
+            <div style="min-width:260px;">
+              <div>${badge}</div>
+              <div class="muted">Registry ID ${esc(c.club_id)}</div>
+              <div class="muted">Founded ${esc(c.founded_date||"")}</div>
+              <div class="muted">Alignment ${esc(c.alignment||"neutral")}</div>
+              <div class="muted">President ${esc(c.president_name||"")}</div>
+              <div class="muted">Verified ${esc(c.verified_at||"")}</div>
+              <div class="muted">Last heartbeat ${esc(c.last_heartbeat||"")}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Description</h2>
+          <p>${esc(c.description||"")}</p>
+          <p class="muted">Home ${esc(c.home_region||"")}  ${c.home_slurl ? `<a href="${esc(c.home_slurl)}">SLURL</a>` : ""}</p>
+          <p class="muted">Colors ${esc(c.colors||"")}</p>
+        </div>
+
+        <div class="card">
+          <h2>Public contacts</h2>
+          ${contacts ? `<ul>${contacts}</ul>` : "<p class='muted'>None listed</p>"}
+        </div>
+      `;
+    }
+
+    load();
+  </script>
+</body>
+</html>
