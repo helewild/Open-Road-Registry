@@ -1,1 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Open Road Registry</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    input { padding: 10px 12px; border: 1px solid #ccc; border-radius: 10px; min-width: 260px; }
+    button { padding: 10px 12px; border: 1px solid #333; border-radius: 10px; background: #fff; cursor: pointer; }
+    .muted { opacity: 0.7; }
+    a { color: inherit; }
+    .badge { display: inline-block; padding: 4px 10px; border: 1px solid #999; border-radius: 999px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Open Road Registry</h1>
+  <p class="muted">Verified club identity index for Second Life motorcycle clubs.</p>
 
+  <div class="card">
+    <div class="row">
+      <input id="q" placeholder="Search club name" />
+      <button id="btn">Search</button>
+      <span class="muted" id="meta"></span>
+    </div>
+  </div>
+
+  <div id="list"></div>
+
+  <script>
+    const API_BASE = "PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
+
+    const qEl = document.getElementById("q");
+    const btn = document.getElementById("btn");
+    const list = document.getElementById("list");
+    const meta = document.getElementById("meta");
+
+    function esc(s){ return String(s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    async function search(){
+      const q = qEl.value.trim();
+      meta.textContent = "Loading";
+      list.innerHTML = "";
+      const url = API_BASE + "?action=search&limit=100&q=" + encodeURIComponent(q);
+      const r = await fetch(url);
+      const j = await r.json();
+      if(!j.ok){ meta.textContent = "Error"; list.innerHTML = "<div class='card'>"+esc(j.error||"error")+"</div>"; return; }
+      meta.textContent = j.count + " result" + (j.count===1?"":"s");
+      list.innerHTML = j.items.map(it => {
+        const badge = "<span class='badge'>" + esc(it.status) + "</span>";
+        return `
+          <div class="card">
+            <div class="row" style="justify-content:space-between;">
+              <div>
+                <div><a href="club.html?club_id=${encodeURIComponent(it.club_id)}"><strong>${esc(it.name)}</strong></a></div>
+                <div class="muted">ID ${esc(it.club_id)}  Founded ${esc(it.founded_date||"")}</div>
+              </div>
+              <div>${badge}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    btn.addEventListener("click", search);
+    qEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") search(); });
+
+    search();
+  </script>
+</body>
+</html>
