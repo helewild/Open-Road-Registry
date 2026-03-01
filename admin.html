@@ -1,274 +1,89 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Open Road Registry - Admin</title>
-  <style>
-    body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    label { display:block; font-size: 12px; opacity: 0.8; margin-bottom: 6px; }
-    input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 10px; }
-    textarea { min-height: 90px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    button { padding: 10px 12px; border: 1px solid #333; border-radius: 10px; background: #fff; cursor: pointer; }
-    .muted { opacity: 0.7; }
-    .ok { color: #0a7a2f; font-weight: 600; }
-    .bad { color: #a0001a; font-weight: 600; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 780px) { .grid { grid-template-columns: 1fr; } }
-  </style>
+<meta charset="utf-8">
+<title>Open Road Registry - Admin</title>
+<style>
+body{font-family:Arial;margin:24px;max-width:900px}
+.card{border:1px solid #ddd;padding:16px;border-radius:10px;margin:12px 0}
+button{padding:8px 12px;margin-top:10px}
+input,select,textarea{width:100%;padding:8px;margin-top:6px}
+.ok{color:green}
+.bad{color:red}
+</style>
 </head>
 <body>
-  <h1>Open Road Registry - Admin</h1>
-  <p class="muted">This version avoids browser preflight by using GET requests only.</p>
 
-  <div class="card">
-    <div class="grid">
-      <div>
-        <label>Apps Script Web App URL</label>
-        <input id="apiBase" placeholder="https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec" />
-      </div>
-      <div>
-        <label>Saved Session</label>
-        <div class="row">
-          <button id="btnLoad">Load saved</button>
-          <button id="btnSave">Save</button>
-          <button id="btnClear">Clear</button>
-        </div>
-        <div class="muted" id="sessionInfo"></div>
-      </div>
-    </div>
-  </div>
+<h1>Open Road Registry - Admin</h1>
 
-  <div class="card">
-    <h2>Register</h2>
-    <div class="grid">
-      <div><label>Club name</label><input id="regName" /></div>
-      <div><label>Founded date</label><input id="regFounded" placeholder="2026-01-01" /></div>
-      <div><label>President UUID</label><input id="regPresUuid" /></div>
-      <div><label>President name</label><input id="regPresName" /></div>
-      <div><label>Patch image URL</label><input id="regPatchUrl" /></div>
-      <div><label>Colors</label><input id="regColors" /></div>
-      <div>
-        <label>Alignment</label>
-        <select id="regAlign">
-          <option value="neutral">neutral</option>
-          <option value="open">open</option>
-          <option value="alliance_only">alliance_only</option>
-          <option value="competitive">competitive</option>
-          <option value="invite_only">invite_only</option>
-        </select>
-      </div>
-      <div>
-        <label>Visibility</label>
-        <select id="regVis">
-          <option value="public">public</option>
-          <option value="registry_only">registry_only</option>
-          <option value="private">private</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-top:12px;">
-      <label>Description</label>
-      <textarea id="regDesc"></textarea>
-    </div>
-    <div class="row" style="margin-top:12px;">
-      <button id="btnRegister">Register</button>
-      <span id="regOut" class="muted"></span>
-    </div>
-  </div>
+<div class="card">
+<label>https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec</label>
+<input id="apiBase">
+</div>
 
-  <div class="card">
-    <h2>Manage</h2>
-    <div class="grid">
-      <div><label>Club ID</label><input id="clubId" /></div>
-      <div><label>Token</label><input id="token" /></div>
-    </div>
+<div class="card">
+<h2>Register</h2>
+<input id="regName" placeholder="Club Name">
+<input id="regFounded" placeholder="2026-01-01">
+<input id="regPresUuid" placeholder="President UUID">
+<input id="regPresName" placeholder="President Name">
+<button onclick="register()">Register</button>
+<div id="regOut"></div>
+</div>
 
-    <div class="row" style="margin-top:12px;">
-      <button id="btnGetChallenge">Request challenge</button>
-      <button id="btnConfirm">Confirm verification</button>
-      <span id="verOut" class="muted"></span>
-    </div>
+<div class="card">
+<h2>Verify</h2>
+<input id="clubId" placeholder="Club ID">
+<input id="token" placeholder="Token">
+<input id="challengeCode" placeholder="Challenge Code">
+<button onclick="confirm()">Confirm</button>
+<div id="verOut"></div>
+</div>
 
-    <div class="grid" style="margin-top:12px;">
-      <div><label>Challenge code</label><input id="challengeCode" /></div>
-      <div><label>President UUID for confirm</label><input id="confirmPresUuid" /></div>
-    </div>
+<script>
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb="cb_"+Math.random().toString(36).substring(2);
+    params.callback=cb;
+    const s=document.createElement("script");
+    window[cb]=(data)=>{delete window[cb];document.head.removeChild(s);resolve(data)};
+    s.onerror=()=>reject("error");
+    s.src=document.getElementById("apiBase").value+"?"+new URLSearchParams(params);
+    document.head.appendChild(s);
+  });
+}
 
-    <h3 style="margin-top:18px;">Update profile</h3>
-    <div class="grid">
-      <div><label>Home region</label><input id="homeRegion" /></div>
-      <div><label>Home SLURL</label><input id="homeSlurl" /></div>
-      <div><label>Patch image URL</label><input id="patchUrl" /></div>
-      <div><label>Colors</label><input id="colors" /></div>
-      <div>
-        <label>Alignment</label>
-        <select id="alignment">
-          <option value="neutral">neutral</option>
-          <option value="open">open</option>
-          <option value="alliance_only">alliance_only</option>
-          <option value="competitive">competitive</option>
-          <option value="invite_only">invite_only</option>
-        </select>
-      </div>
-      <div>
-        <label>Visibility</label>
-        <select id="visibility">
-          <option value="public">public</option>
-          <option value="registry_only">registry_only</option>
-          <option value="private">private</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-top:12px;">
-      <label>Description</label>
-      <textarea id="description"></textarea>
-    </div>
-    <div class="row" style="margin-top:12px;">
-      <button id="btnUpdateProfile">Update profile</button>
-      <span id="updOut" class="muted"></span>
-    </div>
+async function register(){
+  const out=document.getElementById("regOut");
+  const j=await jsonp({
+    action:"register",
+    name:regName.value,
+    founded_date:regFounded.value,
+    president_uuid:regPresUuid.value,
+    president_name:regPresName.value
+  });
+  if(!j.ok) out.innerHTML="<span class=bad>"+j.error+"</span>";
+  else{
+    out.innerHTML="<span class=ok>Registered "+j.club_id+"</span>";
+    clubId.value=j.club_id;
+    token.value=j.token;
+    challengeCode.value=j.challenge;
+  }
+}
 
-    <h3 style="margin-top:18px;">Public contacts</h3>
-    <p class="muted">This step stays for later because officers_set expects JSON. We will add a GET-safe version next.</p>
-  </div>
+async function confirm(){
+  const out=document.getElementById("verOut");
+  const j=await jsonp({
+    action:"confirm",
+    club_id:clubId.value,
+    token:token.value,
+    president_uuid:regPresUuid.value,
+    challenge_code:challengeCode.value
+  });
+  if(!j.ok) out.innerHTML="<span class=bad>"+j.error+"</span>";
+  else out.innerHTML="<span class=ok>Verified</span>";
+}
+</script>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    function setMsg(el, ok, msg){
-      el.className = ok ? "ok" : "bad";
-      el.textContent = msg;
-      setTimeout(()=>{ el.className = "muted"; }, 2500);
-    }
-
-    function saveSession(){
-      const sess = { apiBase: $("apiBase").value.trim(), clubId: $("clubId").value.trim(), token: $("token").value.trim() };
-      localStorage.setItem("orr_admin_session", JSON.stringify(sess));
-      $("sessionInfo").textContent = "Saved";
-    }
-    function loadSession(){
-      const raw = localStorage.getItem("orr_admin_session");
-      if(!raw){ $("sessionInfo").textContent = "No saved session"; return; }
-      const sess = JSON.parse(raw);
-      $("apiBase").value = sess.apiBase || "";
-      $("clubId").value = sess.clubId || "";
-      $("token").value = sess.token || "";
-      $("sessionInfo").textContent = "Loaded";
-    }
-    function clearSession(){
-      localStorage.removeItem("orr_admin_session");
-      $("sessionInfo").textContent = "Cleared";
-    }
-
-    $("btnSave").onclick = saveSession;
-    $("btnLoad").onclick = loadSession;
-    $("btnClear").onclick = clearSession;
-
-    function apiBase(){
-      const v = $("apiBase").value.trim();
-      if(!v) throw new Error("Paste your Apps Script web app URL first");
-      return v;
-    }
-
-    async function apiGet(params){
-      const url = apiBase() + "?" + new URLSearchParams(params).toString();
-      const r = await fetch(url);
-      return await r.json();
-    }
-
-    $("btnRegister").onclick = async () => {
-      const out = $("regOut");
-      out.className = "muted"; out.textContent = "Working";
-      try{
-        const j = await apiGet({
-          action: "register",
-          name: $("regName").value.trim(),
-          founded_date: $("regFounded").value.trim(),
-          alignment: $("regAlign").value,
-          visibility: $("regVis").value,
-          patch_url: $("regPatchUrl").value.trim(),
-          colors: $("regColors").value.trim(),
-          description: $("regDesc").value.trim(),
-          president_uuid: $("regPresUuid").value.trim(),
-          president_name: $("regPresName").value.trim()
-        });
-        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
-        setMsg(out, true, "Registered: " + j.club_id);
-        $("clubId").value = j.club_id || "";
-        $("token").value = j.token || "";
-        $("challengeCode").value = j.challenge || "";
-        $("confirmPresUuid").value = $("regPresUuid").value.trim();
-        saveSession();
-      }catch(e){
-        setMsg(out, false, "Error: " + String(e));
-      }
-    };
-
-    $("btnGetChallenge").onclick = async () => {
-      const out = $("verOut");
-      out.className="muted"; out.textContent="Working";
-      try{
-        const j = await apiGet({
-          action: "get_challenge",
-          club_id: $("clubId").value.trim(),
-          token: $("token").value.trim()
-        });
-        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
-        $("challengeCode").value = j.challenge || "";
-        setMsg(out, true, "Challenge issued");
-        saveSession();
-      }catch(e){
-        setMsg(out, false, "Error: " + String(e));
-      }
-    };
-
-    $("btnConfirm").onclick = async () => {
-      const out = $("verOut");
-      out.className="muted"; out.textContent="Working";
-      try{
-        const j = await apiGet({
-          action: "confirm",
-          club_id: $("clubId").value.trim(),
-          token: $("token").value.trim(),
-          president_uuid: $("confirmPresUuid").value.trim(),
-          challenge_code: $("challengeCode").value.trim()
-        });
-        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
-        setMsg(out, true, "Verified at " + (j.verified_at || ""));
-        saveSession();
-      }catch(e){
-        setMsg(out, false, "Error: " + String(e));
-      }
-    };
-
-    $("btnUpdateProfile").onclick = async () => {
-      const out = $("updOut");
-      out.className="muted"; out.textContent="Working";
-      try{
-        const j = await apiGet({
-          action: "update_profile",
-          club_id: $("clubId").value.trim(),
-          token: $("token").value.trim(),
-          patch_url: $("patchUrl").value.trim(),
-          colors: $("colors").value.trim(),
-          description: $("description").value.trim(),
-          home_region: $("homeRegion").value.trim(),
-          home_slurl: $("homeSlurl").value.trim(),
-          alignment: $("alignment").value,
-          visibility: $("visibility").value
-        });
-        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
-        setMsg(out, true, "Saved");
-        saveSession();
-      }catch(e){
-        setMsg(out, false, "Error: " + String(e));
-      }
-    };
-
-    loadSession();
-  </script>
 </body>
 </html>
