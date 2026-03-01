@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Open Road Registry  Admin</title>
+  <title>Open Road Registry - Admin</title>
   <style>
     body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
     .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
@@ -17,24 +17,17 @@
     .bad { color: #a0001a; font-weight: 600; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 780px) { .grid { grid-template-columns: 1fr; } }
-    .pill { display:inline-block; padding: 4px 10px; border: 1px solid #999; border-radius: 999px; font-size: 12px; }
-    a { color: inherit; }
   </style>
 </head>
 <body>
-  <h1>Open Road Registry  Admin</h1>
-  <p class="muted">
-    This page stores your token only in your browser local storage. Keep it private.
-  </p>
+  <h1>Open Road Registry - Admin</h1>
+  <p class="muted">This version avoids browser preflight by using GET requests only.</p>
 
   <div class="card">
     <div class="grid">
       <div>
-        <label>https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec</label>
-        <input id="apiBase" placeholder="Paste your Apps Script web app URL" />
-        <div class="muted" style="margin-top:8px;">
-          Example ends with /exec
-        </div>
+        <label>Apps Script Web App URL</label>
+        <input id="apiBase" placeholder="https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec" />
       </div>
       <div>
         <label>Saved Session</label>
@@ -49,32 +42,14 @@
   </div>
 
   <div class="card">
-    <h2>Register a club</h2>
+    <h2>Register</h2>
     <div class="grid">
-      <div>
-        <label>Club name</label>
-        <input id="regName" placeholder="The Seventh Gear MC" />
-      </div>
-      <div>
-        <label>Founded date</label>
-        <input id="regFounded" placeholder="2026-01-01" />
-      </div>
-      <div>
-        <label>President UUID</label>
-        <input id="regPresUuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-      </div>
-      <div>
-        <label>President name</label>
-        <input id="regPresName" placeholder="Your avatar name" />
-      </div>
-      <div>
-        <label>Patch image URL</label>
-        <input id="regPatchUrl" placeholder="https://..." />
-      </div>
-      <div>
-        <label>Colors</label>
-        <input id="regColors" placeholder="black, white, red" />
-      </div>
+      <div><label>Club name</label><input id="regName" /></div>
+      <div><label>Founded date</label><input id="regFounded" placeholder="2026-01-01" /></div>
+      <div><label>President UUID</label><input id="regPresUuid" /></div>
+      <div><label>President name</label><input id="regPresName" /></div>
+      <div><label>Patch image URL</label><input id="regPatchUrl" /></div>
+      <div><label>Colors</label><input id="regColors" /></div>
       <div>
         <label>Alignment</label>
         <select id="regAlign">
@@ -94,12 +69,10 @@
         </select>
       </div>
     </div>
-
     <div style="margin-top:12px;">
       <label>Description</label>
-      <textarea id="regDesc" placeholder="Short club description"></textarea>
+      <textarea id="regDesc"></textarea>
     </div>
-
     <div class="row" style="margin-top:12px;">
       <button id="btnRegister">Register</button>
       <span id="regOut" class="muted"></span>
@@ -107,41 +80,29 @@
   </div>
 
   <div class="card">
-    <h2>Manage an existing club</h2>
-
+    <h2>Manage</h2>
     <div class="grid">
-      <div>
-        <label>Club ID</label>
-        <input id="clubId" placeholder="ORRABC123" />
-      </div>
-      <div>
-        <label>Token</label>
-        <input id="token" placeholder="Your private token" />
-      </div>
+      <div><label>Club ID</label><input id="clubId" /></div>
+      <div><label>Token</label><input id="token" /></div>
     </div>
 
     <div class="row" style="margin-top:12px;">
-      <button id="btnFetchPublic">View public profile</button>
-      <span id="pubOut" class="muted"></span>
+      <button id="btnGetChallenge">Request challenge</button>
+      <button id="btnConfirm">Confirm verification</button>
+      <span id="verOut" class="muted"></span>
     </div>
 
-    <div style="margin-top:18px;" class="grid">
-      <div>
-        <label>Patch image URL</label>
-        <input id="patchUrl" placeholder="https://..." />
-      </div>
-      <div>
-        <label>Colors</label>
-        <input id="colors" placeholder="black, white, red" />
-      </div>
-      <div>
-        <label>Home region</label>
-        <input id="homeRegion" placeholder="RicoLand" />
-      </div>
-      <div>
-        <label>Home SLURL</label>
-        <input id="homeSlurl" placeholder="secondlife://..." />
-      </div>
+    <div class="grid" style="margin-top:12px;">
+      <div><label>Challenge code</label><input id="challengeCode" /></div>
+      <div><label>President UUID for confirm</label><input id="confirmPresUuid" /></div>
+    </div>
+
+    <h3 style="margin-top:18px;">Update profile</h3>
+    <div class="grid">
+      <div><label>Home region</label><input id="homeRegion" /></div>
+      <div><label>Home SLURL</label><input id="homeSlurl" /></div>
+      <div><label>Patch image URL</label><input id="patchUrl" /></div>
+      <div><label>Colors</label><input id="colors" /></div>
       <div>
         <label>Alignment</label>
         <select id="alignment">
@@ -161,139 +122,68 @@
         </select>
       </div>
     </div>
-
     <div style="margin-top:12px;">
       <label>Description</label>
-      <textarea id="description" placeholder="Short club description"></textarea>
+      <textarea id="description"></textarea>
     </div>
-
     <div class="row" style="margin-top:12px;">
       <button id="btnUpdateProfile">Update profile</button>
       <span id="updOut" class="muted"></span>
     </div>
 
-    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
-
-    <h3>Verification</h3>
-    <div class="grid">
-      <div>
-        <label>Challenge code</label>
-        <input id="challengeCode" placeholder="ORR 82F7 X9" />
-      </div>
-      <div>
-        <label>President UUID for confirm</label>
-        <input id="confirmPresUuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:12px;">
-      <button id="btnGetChallenge">Request new challenge</button>
-      <button id="btnConfirm">Confirm verification</button>
-      <span id="verOut" class="muted"></span>
-    </div>
-
-    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
-
-    <h3>Public contacts</h3>
-    <p class="muted">
-      Enter JSON array. Only rows with is_public_contact true appear on the public profile.
-    </p>
-    <textarea id="officersJson">[
-  { "avatar_uuid": "", "avatar_name": "", "role": "president", "role_label": "", "is_public_contact": true }
-]</textarea>
-
-    <div class="row" style="margin-top:12px;">
-      <button id="btnSetOfficers">Save public contacts</button>
-      <span id="offOut" class="muted"></span>
-    </div>
-
-    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
-
-    <h3>Helpful links</h3>
-    <div class="row">
-      <a id="linkPublic" href="#" target="_blank" rel="noreferrer">Open public profile page</a>
-      <span class="muted" id="linkHint"></span>
-    </div>
+    <h3 style="margin-top:18px;">Public contacts</h3>
+    <p class="muted">This step stays for later because officers_set expects JSON. We will add a GET-safe version next.</p>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
 
-    function setMsg(el, ok, msg) {
+    function setMsg(el, ok, msg){
       el.className = ok ? "ok" : "bad";
       el.textContent = msg;
-      setTimeout(() => { el.className = "muted"; }, 2500);
+      setTimeout(()=>{ el.className = "muted"; }, 2500);
     }
 
-    function esc(s){ return String(s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-    function apiBase() {
-      const v = $("apiBase").value.trim();
-      if (!v) throw new Error("missing api base url");
-      return v;
-    }
-
-    async function apiGet(params) {
-      const base = apiBase();
-      const url = base + "?" + new URLSearchParams(params).toString();
-      const r = await fetch(url);
-      return await r.json();
-    }
-
-    async function apiPost(obj) {
-      const base = apiBase();
-      const r = await fetch(base + "?action=" + encodeURIComponent(obj.action || ""), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj)
-      });
-      return await r.json();
-    }
-
-    function saveSession() {
-      const sess = {
-        apiBase: $("apiBase").value.trim(),
-        clubId: $("clubId").value.trim(),
-        token: $("token").value.trim()
-      };
+    function saveSession(){
+      const sess = { apiBase: $("apiBase").value.trim(), clubId: $("clubId").value.trim(), token: $("token").value.trim() };
       localStorage.setItem("orr_admin_session", JSON.stringify(sess));
       $("sessionInfo").textContent = "Saved";
     }
-
-    function loadSession() {
+    function loadSession(){
       const raw = localStorage.getItem("orr_admin_session");
-      if (!raw) { $("sessionInfo").textContent = "No saved session"; return; }
+      if(!raw){ $("sessionInfo").textContent = "No saved session"; return; }
       const sess = JSON.parse(raw);
       $("apiBase").value = sess.apiBase || "";
       $("clubId").value = sess.clubId || "";
       $("token").value = sess.token || "";
       $("sessionInfo").textContent = "Loaded";
-      updatePublicLink();
     }
-
-    function clearSession() {
+    function clearSession(){
       localStorage.removeItem("orr_admin_session");
       $("sessionInfo").textContent = "Cleared";
     }
 
-    function updatePublicLink() {
-      const id = $("clubId").value.trim();
-      const href = id ? ("club.html?club_id=" + encodeURIComponent(id)) : "#";
-      $("linkPublic").href = href;
-      $("linkHint").textContent = id ? ("club.html?club_id=" + id) : "";
+    $("btnSave").onclick = saveSession;
+    $("btnLoad").onclick = loadSession;
+    $("btnClear").onclick = clearSession;
+
+    function apiBase(){
+      const v = $("apiBase").value.trim();
+      if(!v) throw new Error("Paste your Apps Script web app URL first");
+      return v;
     }
 
-    $("btnSave").addEventListener("click", saveSession);
-    $("btnLoad").addEventListener("click", loadSession);
-    $("btnClear").addEventListener("click", clearSession);
-    $("clubId").addEventListener("input", updatePublicLink);
+    async function apiGet(params){
+      const url = apiBase() + "?" + new URLSearchParams(params).toString();
+      const r = await fetch(url);
+      return await r.json();
+    }
 
-    $("btnRegister").addEventListener("click", async () => {
+    $("btnRegister").onclick = async () => {
       const out = $("regOut");
-      out.className = "muted";
-      out.textContent = "Working";
-      try {
-        const j = await apiPost({
+      out.className = "muted"; out.textContent = "Working";
+      try{
+        const j = await apiGet({
           action: "register",
           name: $("regName").value.trim(),
           founded_date: $("regFounded").value.trim(),
@@ -305,64 +195,63 @@
           president_uuid: $("regPresUuid").value.trim(),
           president_name: $("regPresName").value.trim()
         });
-        if (!j.ok) {
-          out.className = "bad";
-          out.textContent = "Error: " + (j.error || "unknown");
-          return;
-        }
-        out.className = "ok";
-        out.textContent = "Registered. Club ID " + j.club_id + " saved to manage section.";
-
+        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
+        setMsg(out, true, "Registered: " + j.club_id);
         $("clubId").value = j.club_id || "";
         $("token").value = j.token || "";
         $("challengeCode").value = j.challenge || "";
         $("confirmPresUuid").value = $("regPresUuid").value.trim();
         saveSession();
-        updatePublicLink();
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
+      }catch(e){
+        setMsg(out, false, "Error: " + String(e));
       }
-    });
+    };
 
-    $("btnFetchPublic").addEventListener("click", async () => {
-      const out = $("pubOut");
-      out.className = "muted";
-      out.textContent = "Loading";
-      try {
-        const clubId = $("clubId").value.trim();
-        const j = await apiGet({ action: "club", club_id: clubId });
-        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
-        const c = j.club;
-        out.className = "ok";
-        out.innerHTML =
-          "<span class='pill'>" + esc(c.status) + "</span>" +
-          "  Verified " + esc(c.verified_at || "") +
-          "  Heartbeat " + esc(c.last_heartbeat || "");
-
-        $("patchUrl").value = c.patch_url || "";
-        $("colors").value = c.colors || "";
-        $("description").value = c.description || "";
-        $("homeRegion").value = c.home_region || "";
-        $("homeSlurl").value = c.home_slurl || "";
-        $("alignment").value = c.alignment || "neutral";
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
+    $("btnGetChallenge").onclick = async () => {
+      const out = $("verOut");
+      out.className="muted"; out.textContent="Working";
+      try{
+        const j = await apiGet({
+          action: "get_challenge",
+          club_id: $("clubId").value.trim(),
+          token: $("token").value.trim()
+        });
+        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
+        $("challengeCode").value = j.challenge || "";
+        setMsg(out, true, "Challenge issued");
+        saveSession();
+      }catch(e){
+        setMsg(out, false, "Error: " + String(e));
       }
-    });
+    };
 
-    $("btnUpdateProfile").addEventListener("click", async () => {
+    $("btnConfirm").onclick = async () => {
+      const out = $("verOut");
+      out.className="muted"; out.textContent="Working";
+      try{
+        const j = await apiGet({
+          action: "confirm",
+          club_id: $("clubId").value.trim(),
+          token: $("token").value.trim(),
+          president_uuid: $("confirmPresUuid").value.trim(),
+          challenge_code: $("challengeCode").value.trim()
+        });
+        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
+        setMsg(out, true, "Verified at " + (j.verified_at || ""));
+        saveSession();
+      }catch(e){
+        setMsg(out, false, "Error: " + String(e));
+      }
+    };
+
+    $("btnUpdateProfile").onclick = async () => {
       const out = $("updOut");
-      out.className = "muted";
-      out.textContent = "Working";
-      try {
-        const clubId = $("clubId").value.trim();
-        const token = $("token").value.trim();
-        const j = await apiPost({
+      out.className="muted"; out.textContent="Working";
+      try{
+        const j = await apiGet({
           action: "update_profile",
-          club_id: clubId,
-          token: token,
+          club_id: $("clubId").value.trim(),
+          token: $("token").value.trim(),
           patch_url: $("patchUrl").value.trim(),
           colors: $("colors").value.trim(),
           description: $("description").value.trim(),
@@ -371,92 +260,15 @@
           alignment: $("alignment").value,
           visibility: $("visibility").value
         });
-        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
-        out.className = "ok";
-        out.textContent = "Saved";
+        if(!j.ok) return setMsg(out, false, "Error: " + (j.error || "unknown"));
+        setMsg(out, true, "Saved");
         saveSession();
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
+      }catch(e){
+        setMsg(out, false, "Error: " + String(e));
       }
-    });
-
-    $("btnGetChallenge").addEventListener("click", async () => {
-      const out = $("verOut");
-      out.className = "muted";
-      out.textContent = "Working";
-      try {
-        const clubId = $("clubId").value.trim();
-        const token = $("token").value.trim();
-        const j = await apiPost({ action: "get_challenge", club_id: clubId, token: token });
-        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
-        $("challengeCode").value = j.challenge || "";
-        out.className = "ok";
-        out.textContent = "Challenge issued. Expires " + (j.challenge_expires || "");
-        saveSession();
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
-      }
-    });
-
-    $("btnConfirm").addEventListener("click", async () => {
-      const out = $("verOut");
-      out.className = "muted";
-      out.textContent = "Working";
-      try {
-        const clubId = $("clubId").value.trim();
-        const token = $("token").value.trim();
-        const j = await apiPost({
-          action: "confirm",
-          club_id: clubId,
-          token: token,
-          president_uuid: $("confirmPresUuid").value.trim(),
-          challenge_code: $("challengeCode").value.trim()
-        });
-        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
-        out.className = "ok";
-        out.textContent = "Verified at " + (j.verified_at || "");
-        saveSession();
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
-      }
-    });
-
-    $("btnSetOfficers").addEventListener("click", async () => {
-      const out = $("offOut");
-      out.className = "muted";
-      out.textContent = "Working";
-      try {
-        const clubId = $("clubId").value.trim();
-        const token = $("token").value.trim();
-        let officers;
-        try {
-          officers = JSON.parse($("officersJson").value);
-        } catch (e) {
-          out.className = "bad";
-          out.textContent = "Officers JSON invalid";
-          return;
-        }
-        const j = await apiPost({
-          action: "officers_set",
-          club_id: clubId,
-          token: token,
-          officers: officers
-        });
-        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
-        out.className = "ok";
-        out.textContent = "Saved " + (j.count || 0) + " contact rows";
-        saveSession();
-      } catch (e) {
-        out.className = "bad";
-        out.textContent = "Error: " + String(e);
-      }
-    });
+    };
 
     loadSession();
-    updatePublicLink();
   </script>
 </body>
 </html>
