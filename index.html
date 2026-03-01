@@ -1,78 +1,35 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Open Road Registry</title>
-  <style>
-    body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    input { padding: 10px 12px; border: 1px solid #ccc; border-radius: 10px; min-width: 260px; }
-    button { padding: 10px 12px; border: 1px solid #333; border-radius: 10px; background: #fff; cursor: pointer; }
-    .muted { opacity: 0.7; }
-    a { color: inherit; }
-    .badge { display: inline-block; padding: 4px 10px; border: 1px solid #999; border-radius: 999px; font-size: 12px; }
-  </style>
+<meta charset="utf-8">
+<title>Open Road Registry</title>
 </head>
 <body>
-  <h1>Open Road Registry</h1>
-  <p class="muted">Verified club identity index for Second Life motorcycle clubs.</p>
 
-  <div class="card">
-    <div class="row">
-      <input id="q" placeholder="Search club name" />
-      <button id="btn">Search</button>
-      <span class="muted" id="meta"></span>
-    </div>
-  </div>
+<h1>Open Road Registry</h1>
+<div id="list"></div>
 
-  <div id="list"></div>
-  <p class="muted">
-  <a href="terms.html">Terms and Neutrality Policy</a>
-</p>
-<p class="muted">
-  <a href="about.html">What is this?</a>
-</p>
-  <script>
-    const API_BASE = "https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec";
+<script>
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb="cb_"+Math.random().toString(36).substring(2);
+    params.callback=cb;
+    const s=document.createElement("script");
+    window[cb]=(data)=>{delete window[cb];document.head.removeChild(s);resolve(data)};
+    s.onerror=()=>reject("error");
+    s.src="PASTE_YOUR_WEBAPP_URL?"+new URLSearchParams(params);
+    document.head.appendChild(s);
+  });
+}
 
-    const qEl = document.getElementById("q");
-    const btn = document.getElementById("btn");
-    const list = document.getElementById("list");
-    const meta = document.getElementById("meta");
+async function load(){
+  const j=await jsonp({action:"search"});
+  const div=document.getElementById("list");
+  if(!j.ok){div.innerText=j.error;return;}
+  div.innerHTML=j.items.map(c=>"<div><a href='club.html?id="+c.club_id+"'>"+c.name+"</a></div>").join("");
+}
+load();
+</script>
 
-    function esc(s){ return String(s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-    async function search(){
-      const q = qEl.value.trim();
-      meta.textContent = "Loading";
-      list.innerHTML = "";
-      const url = API_BASE + "?action=search&limit=100&q=" + encodeURIComponent(q);
-      const r = await fetch(url);
-      const j = await r.json();
-      if(!j.ok){ meta.textContent = "Error"; list.innerHTML = "<div class='card'>"+esc(j.error||"error")+"</div>"; return; }
-      meta.textContent = j.count + " result" + (j.count===1?"":"s");
-      list.innerHTML = j.items.map(it => {
-        const badge = "<span class='badge'>" + esc(it.status) + "</span>";
-        return `
-          <div class="card">
-            <div class="row" style="justify-content:space-between;">
-              <div>
-                <div><a href="club.html?club_id=${encodeURIComponent(it.club_id)}"><strong>${esc(it.name)}</strong></a></div>
-                <div class="muted">ID ${esc(it.club_id)}  Founded ${esc(it.founded_date||"")}</div>
-              </div>
-              <div>${badge}</div>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    btn.addEventListener("click", search);
-    qEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") search(); });
-
-    search();
-  </script>
 </body>
 </html>
