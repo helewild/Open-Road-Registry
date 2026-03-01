@@ -1,0 +1,462 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Open Road Registry  Admin</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 980px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    label { display:block; font-size: 12px; opacity: 0.8; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 10px; }
+    textarea { min-height: 90px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    button { padding: 10px 12px; border: 1px solid #333; border-radius: 10px; background: #fff; cursor: pointer; }
+    .muted { opacity: 0.7; }
+    .ok { color: #0a7a2f; font-weight: 600; }
+    .bad { color: #a0001a; font-weight: 600; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 780px) { .grid { grid-template-columns: 1fr; } }
+    .pill { display:inline-block; padding: 4px 10px; border: 1px solid #999; border-radius: 999px; font-size: 12px; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Open Road Registry  Admin</h1>
+  <p class="muted">
+    This page stores your token only in your browser local storage. Keep it private.
+  </p>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec</label>
+        <input id="apiBase" placeholder="Paste your Apps Script web app URL" />
+        <div class="muted" style="margin-top:8px;">
+          Example ends with /exec
+        </div>
+      </div>
+      <div>
+        <label>Saved Session</label>
+        <div class="row">
+          <button id="btnLoad">Load saved</button>
+          <button id="btnSave">Save</button>
+          <button id="btnClear">Clear</button>
+        </div>
+        <div class="muted" id="sessionInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Register a club</h2>
+    <div class="grid">
+      <div>
+        <label>Club name</label>
+        <input id="regName" placeholder="The Seventh Gear MC" />
+      </div>
+      <div>
+        <label>Founded date</label>
+        <input id="regFounded" placeholder="2026-01-01" />
+      </div>
+      <div>
+        <label>President UUID</label>
+        <input id="regPresUuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+      </div>
+      <div>
+        <label>President name</label>
+        <input id="regPresName" placeholder="Your avatar name" />
+      </div>
+      <div>
+        <label>Patch image URL</label>
+        <input id="regPatchUrl" placeholder="https://..." />
+      </div>
+      <div>
+        <label>Colors</label>
+        <input id="regColors" placeholder="black, white, red" />
+      </div>
+      <div>
+        <label>Alignment</label>
+        <select id="regAlign">
+          <option value="neutral">neutral</option>
+          <option value="open">open</option>
+          <option value="alliance_only">alliance_only</option>
+          <option value="competitive">competitive</option>
+          <option value="invite_only">invite_only</option>
+        </select>
+      </div>
+      <div>
+        <label>Visibility</label>
+        <select id="regVis">
+          <option value="public">public</option>
+          <option value="registry_only">registry_only</option>
+          <option value="private">private</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>Description</label>
+      <textarea id="regDesc" placeholder="Short club description"></textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="btnRegister">Register</button>
+      <span id="regOut" class="muted"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Manage an existing club</h2>
+
+    <div class="grid">
+      <div>
+        <label>Club ID</label>
+        <input id="clubId" placeholder="ORRABC123" />
+      </div>
+      <div>
+        <label>Token</label>
+        <input id="token" placeholder="Your private token" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="btnFetchPublic">View public profile</button>
+      <span id="pubOut" class="muted"></span>
+    </div>
+
+    <div style="margin-top:18px;" class="grid">
+      <div>
+        <label>Patch image URL</label>
+        <input id="patchUrl" placeholder="https://..." />
+      </div>
+      <div>
+        <label>Colors</label>
+        <input id="colors" placeholder="black, white, red" />
+      </div>
+      <div>
+        <label>Home region</label>
+        <input id="homeRegion" placeholder="RicoLand" />
+      </div>
+      <div>
+        <label>Home SLURL</label>
+        <input id="homeSlurl" placeholder="secondlife://..." />
+      </div>
+      <div>
+        <label>Alignment</label>
+        <select id="alignment">
+          <option value="neutral">neutral</option>
+          <option value="open">open</option>
+          <option value="alliance_only">alliance_only</option>
+          <option value="competitive">competitive</option>
+          <option value="invite_only">invite_only</option>
+        </select>
+      </div>
+      <div>
+        <label>Visibility</label>
+        <select id="visibility">
+          <option value="public">public</option>
+          <option value="registry_only">registry_only</option>
+          <option value="private">private</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>Description</label>
+      <textarea id="description" placeholder="Short club description"></textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="btnUpdateProfile">Update profile</button>
+      <span id="updOut" class="muted"></span>
+    </div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
+
+    <h3>Verification</h3>
+    <div class="grid">
+      <div>
+        <label>Challenge code</label>
+        <input id="challengeCode" placeholder="ORR 82F7 X9" />
+      </div>
+      <div>
+        <label>President UUID for confirm</label>
+        <input id="confirmPresUuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="btnGetChallenge">Request new challenge</button>
+      <button id="btnConfirm">Confirm verification</button>
+      <span id="verOut" class="muted"></span>
+    </div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
+
+    <h3>Public contacts</h3>
+    <p class="muted">
+      Enter JSON array. Only rows with is_public_contact true appear on the public profile.
+    </p>
+    <textarea id="officersJson">[
+  { "avatar_uuid": "", "avatar_name": "", "role": "president", "role_label": "", "is_public_contact": true }
+]</textarea>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="btnSetOfficers">Save public contacts</button>
+      <span id="offOut" class="muted"></span>
+    </div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #eee;" />
+
+    <h3>Helpful links</h3>
+    <div class="row">
+      <a id="linkPublic" href="#" target="_blank" rel="noreferrer">Open public profile page</a>
+      <span class="muted" id="linkHint"></span>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function setMsg(el, ok, msg) {
+      el.className = ok ? "ok" : "bad";
+      el.textContent = msg;
+      setTimeout(() => { el.className = "muted"; }, 2500);
+    }
+
+    function esc(s){ return String(s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    function apiBase() {
+      const v = $("apiBase").value.trim();
+      if (!v) throw new Error("missing api base url");
+      return v;
+    }
+
+    async function apiGet(params) {
+      const base = apiBase();
+      const url = base + "?" + new URLSearchParams(params).toString();
+      const r = await fetch(url);
+      return await r.json();
+    }
+
+    async function apiPost(obj) {
+      const base = apiBase();
+      const r = await fetch(base + "?action=" + encodeURIComponent(obj.action || ""), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(obj)
+      });
+      return await r.json();
+    }
+
+    function saveSession() {
+      const sess = {
+        apiBase: $("apiBase").value.trim(),
+        clubId: $("clubId").value.trim(),
+        token: $("token").value.trim()
+      };
+      localStorage.setItem("orr_admin_session", JSON.stringify(sess));
+      $("sessionInfo").textContent = "Saved";
+    }
+
+    function loadSession() {
+      const raw = localStorage.getItem("orr_admin_session");
+      if (!raw) { $("sessionInfo").textContent = "No saved session"; return; }
+      const sess = JSON.parse(raw);
+      $("apiBase").value = sess.apiBase || "";
+      $("clubId").value = sess.clubId || "";
+      $("token").value = sess.token || "";
+      $("sessionInfo").textContent = "Loaded";
+      updatePublicLink();
+    }
+
+    function clearSession() {
+      localStorage.removeItem("orr_admin_session");
+      $("sessionInfo").textContent = "Cleared";
+    }
+
+    function updatePublicLink() {
+      const id = $("clubId").value.trim();
+      const href = id ? ("club.html?club_id=" + encodeURIComponent(id)) : "#";
+      $("linkPublic").href = href;
+      $("linkHint").textContent = id ? ("club.html?club_id=" + id) : "";
+    }
+
+    $("btnSave").addEventListener("click", saveSession);
+    $("btnLoad").addEventListener("click", loadSession);
+    $("btnClear").addEventListener("click", clearSession);
+    $("clubId").addEventListener("input", updatePublicLink);
+
+    $("btnRegister").addEventListener("click", async () => {
+      const out = $("regOut");
+      out.className = "muted";
+      out.textContent = "Working";
+      try {
+        const j = await apiPost({
+          action: "register",
+          name: $("regName").value.trim(),
+          founded_date: $("regFounded").value.trim(),
+          alignment: $("regAlign").value,
+          visibility: $("regVis").value,
+          patch_url: $("regPatchUrl").value.trim(),
+          colors: $("regColors").value.trim(),
+          description: $("regDesc").value.trim(),
+          president_uuid: $("regPresUuid").value.trim(),
+          president_name: $("regPresName").value.trim()
+        });
+        if (!j.ok) {
+          out.className = "bad";
+          out.textContent = "Error: " + (j.error || "unknown");
+          return;
+        }
+        out.className = "ok";
+        out.textContent = "Registered. Club ID " + j.club_id + " saved to manage section.";
+
+        $("clubId").value = j.club_id || "";
+        $("token").value = j.token || "";
+        $("challengeCode").value = j.challenge || "";
+        $("confirmPresUuid").value = $("regPresUuid").value.trim();
+        saveSession();
+        updatePublicLink();
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    $("btnFetchPublic").addEventListener("click", async () => {
+      const out = $("pubOut");
+      out.className = "muted";
+      out.textContent = "Loading";
+      try {
+        const clubId = $("clubId").value.trim();
+        const j = await apiGet({ action: "club", club_id: clubId });
+        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
+        const c = j.club;
+        out.className = "ok";
+        out.innerHTML =
+          "<span class='pill'>" + esc(c.status) + "</span>" +
+          "  Verified " + esc(c.verified_at || "") +
+          "  Heartbeat " + esc(c.last_heartbeat || "");
+
+        $("patchUrl").value = c.patch_url || "";
+        $("colors").value = c.colors || "";
+        $("description").value = c.description || "";
+        $("homeRegion").value = c.home_region || "";
+        $("homeSlurl").value = c.home_slurl || "";
+        $("alignment").value = c.alignment || "neutral";
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    $("btnUpdateProfile").addEventListener("click", async () => {
+      const out = $("updOut");
+      out.className = "muted";
+      out.textContent = "Working";
+      try {
+        const clubId = $("clubId").value.trim();
+        const token = $("token").value.trim();
+        const j = await apiPost({
+          action: "update_profile",
+          club_id: clubId,
+          token: token,
+          patch_url: $("patchUrl").value.trim(),
+          colors: $("colors").value.trim(),
+          description: $("description").value.trim(),
+          home_region: $("homeRegion").value.trim(),
+          home_slurl: $("homeSlurl").value.trim(),
+          alignment: $("alignment").value,
+          visibility: $("visibility").value
+        });
+        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
+        out.className = "ok";
+        out.textContent = "Saved";
+        saveSession();
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    $("btnGetChallenge").addEventListener("click", async () => {
+      const out = $("verOut");
+      out.className = "muted";
+      out.textContent = "Working";
+      try {
+        const clubId = $("clubId").value.trim();
+        const token = $("token").value.trim();
+        const j = await apiPost({ action: "get_challenge", club_id: clubId, token: token });
+        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
+        $("challengeCode").value = j.challenge || "";
+        out.className = "ok";
+        out.textContent = "Challenge issued. Expires " + (j.challenge_expires || "");
+        saveSession();
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    $("btnConfirm").addEventListener("click", async () => {
+      const out = $("verOut");
+      out.className = "muted";
+      out.textContent = "Working";
+      try {
+        const clubId = $("clubId").value.trim();
+        const token = $("token").value.trim();
+        const j = await apiPost({
+          action: "confirm",
+          club_id: clubId,
+          token: token,
+          president_uuid: $("confirmPresUuid").value.trim(),
+          challenge_code: $("challengeCode").value.trim()
+        });
+        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
+        out.className = "ok";
+        out.textContent = "Verified at " + (j.verified_at || "");
+        saveSession();
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    $("btnSetOfficers").addEventListener("click", async () => {
+      const out = $("offOut");
+      out.className = "muted";
+      out.textContent = "Working";
+      try {
+        const clubId = $("clubId").value.trim();
+        const token = $("token").value.trim();
+        let officers;
+        try {
+          officers = JSON.parse($("officersJson").value);
+        } catch (e) {
+          out.className = "bad";
+          out.textContent = "Officers JSON invalid";
+          return;
+        }
+        const j = await apiPost({
+          action: "officers_set",
+          club_id: clubId,
+          token: token,
+          officers: officers
+        });
+        if (!j.ok) { out.className = "bad"; out.textContent = "Error: " + (j.error || "unknown"); return; }
+        out.className = "ok";
+        out.textContent = "Saved " + (j.count || 0) + " contact rows";
+        saveSession();
+      } catch (e) {
+        out.className = "bad";
+        out.textContent = "Error: " + String(e);
+      }
+    });
+
+    loadSession();
+    updatePublicLink();
+  </script>
+</body>
+</html>
