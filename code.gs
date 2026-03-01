@@ -1,4 +1,4 @@
-const SPREADSHEET_ID = "https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec";
+const SPREADSHEET_ID = "1qkz3Oy66p4uhXWLuORk_BK-MtppZ0-bhi0gQXdP7Shw";
 
 const SHEET_CLUBS = "Clubs";
 const SHEET_OFFICERS = "Officers";
