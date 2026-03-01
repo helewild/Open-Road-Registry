@@ -3,32 +3,64 @@
 <head>
 <meta charset="utf-8">
 <title>Open Road Registry</title>
+<style>
+body{font-family:Arial;margin:24px;max-width:900px}
+.card{border:1px solid #ddd;padding:12px;border-radius:8px;margin:8px 0}
+a{text-decoration:none;color:black}
+</style>
 </head>
 <body>
 
 <h1>Open Road Registry</h1>
-<div id="list"></div>
+<div id="list">Loading...</div>
 
 <script>
+
+const API = "https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec"; // <-- PUT YOUR REAL URL HERE
+
 function jsonp(params){
   return new Promise((resolve,reject)=>{
     const cb="cb_"+Math.random().toString(36).substring(2);
     params.callback=cb;
     const s=document.createElement("script");
-    window[cb]=(data)=>{delete window[cb];document.head.removeChild(s);resolve(data)};
-    s.onerror=()=>reject("error");
-    s.src="https://script.google.com/macros/s/AKfycbyKsX9eQCM8G7xgtmuv2I0-g3Hm-Qpk2uRdLUdRVk3G3nJrKY_9S68aTaAOLZxpJ3p7fw/exec"+new URLSearchParams(params);
+    window[cb]=(data)=>{
+      delete window[cb];
+      document.head.removeChild(s);
+      resolve(data);
+    };
+    s.onerror=()=>reject("Script load error");
+    s.src=API+"?"+new URLSearchParams(params);
     document.head.appendChild(s);
   });
 }
 
 async function load(){
-  const j=await jsonp({action:"search"});
-  const div=document.getElementById("list");
-  if(!j.ok){div.innerText=j.error;return;}
-  div.innerHTML=j.items.map(c=>"<div><a href='club.html?id="+c.club_id+"'>"+c.name+"</a></div>").join("");
+  try{
+    const j=await jsonp({action:"search"});
+    const div=document.getElementById("list");
+    if(!j.ok){
+      div.innerText=j.error;
+      return;
+    }
+    if(j.count===0){
+      div.innerHTML="<div class='card'>No registered clubs yet.</div>";
+      return;
+    }
+    div.innerHTML=j.items.map(c=>`
+      <div class="card">
+        <a href="club.html?id=${c.club_id}">
+          <strong>${c.name}</strong>
+        </a>
+        <div>Status: ${c.status}</div>
+      </div>
+    `).join("");
+  }catch(e){
+    document.getElementById("list").innerText="Error loading registry";
+  }
 }
+
 load();
+
 </script>
 
 </body>
